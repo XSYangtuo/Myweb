@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <style>
+	td{
+	    font-size:10px;
+		border:solid 2px;
+		width:10％;
+	    }
+  </style>
+  <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width，initial-scale=2">
+  </head>
+  <body>
+	<p id="len" style="font-size:10px">长度:3</p>
+	<canvas id="c" style="width:100％;height:100px">不支持画板</canvas>
+	<table>
+	  <tr><td>xxxxxxx</td><td onclick="mdre(1);">up</td><td>xxxxxxx</td></tr>
+	  <tr><td onclick="mdre(0)">left</td><td>xxxxxxx</td><td onclick="mdre(2)">right</td></tr>
+	  <tr><td></td><td onclick="mdre(3)">down</td><td></td></tr>
+	</table>
+  </body>
+  <script>
+	var c=document.getElementById("c").getContext("2d");//画板
+	//边框
+	c.rect(0,0,128,128);
+	c.stroke();
+	
+	//起始点
+	c.fillRect(64,64,4,4);
+	
+	var direction = 1;//方向，0左，顺时针旋转，3下
+	var length    = 3;//长度计数器
+	var mtimes = 0;//move()是否为方向键触发
+	//头部坐标
+	var startx    = 16;
+	var starty    = 16;
+	
+	//食物坐标
+	var foodx     = 1+Math.round(Math.random()*30);
+	var foody     = 1+Math.round(Math.random()*30);
+	c.fillRect(foodx*4,foody*4,4,4);
+	
+	//全身坐标
+	var xl=[16,16,16];
+	var yl=[18,17,16];
+	
+	//是否吃食物
+	var eating = false;
+	
+	//运动函数
+	function move(yo){
+	    if(yo != mtimes){return;}//防止方向键按下后前面的move继续循环
+	    switch(direction){//根据不同方向移动头部
+		    case 0:
+			    startx--;
+				break;
+			case 1:
+			    starty--;
+			    break;
+			case 2:
+			    startx++;
+				break;
+			case 3:
+			    starty++;
+		    }
+		if(startx>=32 || startx<0 || starty>=32 || starty<0){//撞墙
+		    alert("游戏结束");
+			return;
+			}
+		for(var i = 0;i<xl.length;i++){//撞自己
+		    if(startx == xl[i] && starty == yl[i]){
+			    alert("撞车");
+				return;
+				}
+		    }
+			
+		c.fillStyle = "#000000";
+		if(startx == foodx && starty == foody){//吃东西判定
+		    length++;
+			document.getElementById("len").innerHTML = "长度:"+length;
+		    eating = true;
+			foodx = 1+Math.round(Math.random()*30);
+			foody = 1+Math.round(Math.random()*30);
+			c.fillRect(foodx*4,foody*4,4,4);
+		    }
+			
+		//增长
+		xl[xl.length] = startx;
+		yl[yl.length] = starty;
+		c.fillRect(startx*4,starty*4,4,4);
+		
+		if(!eating){//尾部退缩
+		c.fillStyle = "#FFFFFF";
+	    c.fillRect(xl[0]*4,yl[0]*4,4,4);
+		xl.splice(0,1);
+		yl.splice(0,1);
+		}
+		eating = false;
+		setTimeout("move("+yo+")",500);
+		    
+	    }
+		
+		function mdre(md){//方向改变
+		    if(md==1&&direction !=3){direction = 1;}
+			if(md==3&&direction !=1){direction = 3;}
+			if(md==2&&direction !=0){direction = 2;}
+			if(md==0&&direction !=2){direction = 0;}
+			
+			move(++mtimes);
+		    }
+		//开始
+		move(mtimes);
+  </script>
+</html>
