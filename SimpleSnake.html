@@ -1,0 +1,131 @@
+<html>
+  <head>
+<style>
+  html{
+  background:grey;
+  }
+  #main{
+  line-height:0.6em;
+  overflow:hidden;
+  }
+  #how{ 
+  font-size:40px;
+  color:blue;
+  }
+  #control{
+  line-height:0.8em;
+  font-size:20vw;
+  margin:10vw 0 0 40vw;
+  }
+</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0">
+	<meta name="author" content="XSyangtuo">
+	<meta charset="UTF-8">
+	
+  </head>
+  <body>
+	<span id="main"><br/><br/></span>
+	<div onclick="starter()" id="how">点我开始(click to start)<br/>提示:连续点击方向键速度更快</div>
+	<div id="control">
+	  ○<span onclick="chan(1)">■</span>○<br/>
+	  <span onclick="chan(0)">■</span>○<span onclick="chan(2)">■</span><br/>
+	  ○<span onclick="chan(3)">■</span>○<br/>
+	</div>
+	<!--button onclick="alert(JSON.stringify(main))">e</button-->
+  <script>
+var playing = false;//是否正在游戏中
+var length = 1;//长度
+var lines = 30;var columns = 30;//几行几列
+var main = new Array(lines);//界面存储
+var direction = 1;//方向,0left1top2right3bottom
+var upd = 0;//move()的更新
+//蛇身，0是头，最后是尾
+var xs = [Math.round(columns/2)];
+var ys = [Math.round(lines/2)];
+
+var bg = "■";var bd ="□";var ea ="○";//字符集
+
+//!注意，在以下实例中，na是y轴，nb是x轴，既main[y][x]
+function starter(){//开始
+    //防止中断游戏
+    if(playing){return;}
+	playing = true;
+	
+    try{
+    //alert(JSON.stringify(main));
+    for(var na = 0;na<lines;na++){
+	    //遍历初始化
+	    main[na] = new Array(columns);
+        for(var nb = 0;nb<columns;nb++){
+		    main[na][nb] = bg;
+			if((na == ys && nb == xs)||na==0||nb==0||na==lines-1||nb==columns-1){main[na][nb] = bd;}
+            }
+        }
+    main[1+Math.round(Math.random()*(lines-3))][1+Math.round(Math.random()*(columns-3))] = ea;
+    sc();
+	document.getElementById("how").innerHTML = "长度:1";
+	move(upd);
+    }catch(e){alert(e);}
+    }
+function move(u){//移动，u是本次更新值
+    if(u!=upd){return;}//废弃
+    var startx = xs[0];
+	var starty = ys[0];
+	switch(direction){//根据不同方向移动头部
+		    case 0:
+			    startx--;
+				break;
+			case 1:
+			    starty--;
+			    break;
+			case 2:
+			    startx++;
+				break;
+			case 3:
+			    starty++;
+		    }
+	if(main[starty][startx] == bd){//撞到
+	    alert("游戏结束 gameover");
+		playing=false;
+		length = 1;
+		direction = 1;
+		upd = 0;
+		document.getElementById("how").innerHTML = "点我再来";
+		return;
+		}
+	if(main[starty][startx] != ea){//没吃到东西
+	    main[ys[ys.length-1]][xs[xs.length-1]] = bg;
+	    xs.splice(xs.length-1,1);ys.splice(ys.length-1,1);
+	}else{//吃到了
+	    document.getElementById("how").innerHTML = "长度:"+(++length);
+		main[1+Math.round(Math.random()*(lines-3))][1+Math.round(Math.random()*(columns-3))] = ea;
+	    }
+	main[starty][startx] = bd;
+	xs.splice(0,0,startx);ys.splice(0,0,starty);
+	
+	sc();
+	setTimeout("move("+u+")",500);
+			
+    }
+function sc(){//显示
+    var em = "<div>";
+    for(var na = 0;na<lines;na++){
+        for(var nb = 0;nb<columns;nb++){
+            em+=main[na][nb];
+            }
+        em+="</div><div>";
+        }
+    document.getElementById("main").innerHTML = em + "</div>";
+    }
+function chan(md){//方向改变
+    //alert("");
+    if(md==1&&direction !=3){direction = 1;}
+	if(md==3&&direction !=1){direction = 3;}
+	if(md==2&&direction !=0){direction = 2;}
+	if(md==0&&direction !=2){direction = 0;}
+	move(++upd);
+    }
+  </script>
+  </body>
+
+</html>
